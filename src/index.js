@@ -27,7 +27,7 @@ const app = express();
 
 // EXPRESS CONFIG
 const corsOptions = {
-  origin: process.env.VERCEL_URL,
+  origin: "https://" + process.env.VERCEL_URL,
   methods: "GET,POST,DELETE",
   optionsSuccessStatus: 204,
 };
@@ -111,7 +111,7 @@ try {
   app.listen(process.env.PORT, async () => {
     console.log(`Application running on port: ${process.env.PORT}`);
     bot
-      .setWebhook(`${process.env.VERCEL_URL}/viber/webhook`)
+      .setWebhook(`https://${process.env.VERCEL_URL}/viber/webhook`)
       .catch((e) => console.log(e));
   });
 } catch (error) {
