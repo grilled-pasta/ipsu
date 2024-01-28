@@ -18,6 +18,9 @@ require("dotenv").config();
 
 const db = require("./db");
 
+console.log(process.env.VERCEL_URL);
+console.log(process.env.PORT);
+
 // Server
 const router = express.Router();
 const app = express();
