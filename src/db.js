@@ -2,7 +2,7 @@ const values = new Map();
 
 values.set(1, {
   id: 1,
-  name: "Подслон",
+  name: "Социални Услуги от Резидентен Тип",
   type: "menu",
 });
 
@@ -204,7 +204,7 @@ values.set(15, {
 
 values.set(2, {
   id: 2,
-  name: "Рехабилитация",
+  name: "Социални Услуги за Дневна Грижа",
   type: "menu",
 });
 
