@@ -18,7 +18,7 @@ require("dotenv").config();
 
 const db = require("./db");
 
-console.log(process.env.VERCEL_URL);
+console.log(process.env.WEBHOOK_URL);
 console.log(process.env.PORT);
 
 // Server
@@ -27,7 +27,7 @@ const app = express();
 
 // EXPRESS CONFIG
 const corsOptions = {
-  origin: "https://" + process.env.VERCEL_URL,
+  origin: process.env.WEBHOOK_URL,
   methods: "GET,POST,DELETE",
   optionsSuccessStatus: 204,
 };
@@ -41,81 +41,117 @@ const bot = new ViberBot({
   avatar: "/logo.png",
 });
 
-process.on("unhandledRejection", (error) => {
-  console.log("unhandledRejection", error.message);
-});
-
 bot.onConversationStarted((userProfile) => {
   console.log(
     `${BotEvents.CONVERSATION_STARTED}: ${JSON.stringify(userProfile)}`
   );
 
   bot
-    .sendMessage(
-      userProfile,
+    .sendMessage(userProfile, [
       new TextMessage(
-        "Здравей, от какво имаш нужда?",
-
-        sendKeyboardMenu([...db.values()].filter((v) => v.id < 10))
-      )
-    )
+        `Здравей, ${userProfile.name}, от какво имаш нужда?`,
+        sendKeyboardMenu([...db.values()].filter((v) => v.id < 10)),
+        null,
+        null,
+        null,
+        6
+      ),
+    ])
     .catch((e) => console.log(e));
 });
 
 bot.on(BotEvents.MESSAGE_RECEIVED, (message, response) => {
+  if (isNaN(message.text) || !db.has(Number(message.text))) {
+    return bot.sendMessage(response.userProfile, [
+      new TextMessage(
+        "Не мога да отговарям на съобщения, моля използвай менюто:",
+        sendKeyboardMenu([...db.values()].filter((v) => v.id < 10)),
+        null,
+        null,
+        null,
+        6
+      ),
+    ]);
+  }
+
   console.log(message);
   const selection = Number(message.text);
 
   const answer = db.get(selection);
-  console.log(answer);
 
   if (answer.type === "menu") {
-    response
-      .send(
+    bot
+      .sendMessage(response.userProfile, [
         new KeyboardMessage(
           sendKeyboardMenu(
             [...db.values()].filter(
               (v) => v.id >= selection * 10 && v.id < (selection + 1) * 10
             )
-          )
-        )
-      )
+          ),
+          null,
+          null,
+          null,
+          6
+        ),
+      ])
       .catch((e) => console.log(e));
   } else if (answer.type === "answer") {
-    response
-      .send(
+    bot
+      .sendMessage(response.userProfile, [
         new RichMediaMessage(
           sendCenters(
             [...db.values()].filter(
               (v) => v.id >= selection * 10 && v.id < (selection + 1) * 10
             )
-          )
-        )
-      )
+          ),
+          null,
+          null,
+          null,
+          6
+        ),
+      ])
       .catch((e) => console.log(e));
   } else if (answer.type === "center") {
     bot
       .sendMessage(response.userProfile, [
         ...sendCenterDetails(db.get(selection)),
         new KeyboardMessage(
-          sendKeyboardMenu([...db.values()].filter((v) => v.id < 10))
+          sendKeyboardMenu([...db.values()].filter((v) => v.id < 10)),
+          null,
+          null,
+          null,
+          6
+        ),
+      ])
+      .catch((e) => console.log(e));
+  } else if (answer.type === "back") {
+    bot
+      .sendMessage(response.userProfile, [
+        new KeyboardMessage(
+          sendKeyboardMenu([...db.values()].filter((v) => v.id < 10)),
+          null,
+          null,
+          null,
+          6
         ),
       ])
       .catch((e) => console.log(e));
   }
 });
 
-try {
-  app.use("/", router);
-  app.use("/viber/webhook", bot.middleware());
-  app.listen(process.env.PORT, async () => {
-    console.log(`Application running on port: ${process.env.PORT}`);
+app.use("/", router);
+app.use("/viber/webhook", bot.middleware());
+app.listen(process.env.PORT, async () => {
+  console.log(`Application running on port: ${process.env.PORT}`);
+  try {
     bot
-      .setWebhook(`https://${process.env.VERCEL_URL}/viber/webhook`)
+      .setWebhook(`${process.env.WEBHOOK_URL}/viber/webhook`)
       .catch((e) => console.log(e));
-  });
-} catch (error) {
-  console.log(`Can't set WEBHOOK on ${process.env.VERCEL_URL}/viber/webhook`);
-  console.error(error);
-  process.exit(1);
-}
+  } catch (error) {
+    console.log(
+      `Can't set WEBHOOK on ${process.env.WEBHOOK_URL}/viber/webhook`
+    );
+    console.error(error);
+    process.exit(1);
+  }
+});

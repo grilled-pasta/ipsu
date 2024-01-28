@@ -1,9 +1,4 @@
 const TextMessage = require("viber-bot").Message.Text;
-const KeyboardMessage = require("viber-bot").Message.Keyboard;
-const RichMediaMessage = require("viber-bot").Message.RichMedia;
-const UrlMessage = require("viber-bot").Message.Url;
-const LocationMessage = require("viber-bot").Message.Location;
-const ContactMessage = require("viber-bot").Message.Contact;
 
 module.exports.sendKeyboardMenu = (items) => {
   const buttons = items.map((i) => {
@@ -17,14 +12,20 @@ module.exports.sendKeyboardMenu = (items) => {
       TextHAlign: "center",
       ActionBody: `${i.id}`,
       TextShouldFit: true,
-      BgColor: "#FFFFFF",
-      Silent: true,
+      BgColor: `${i.type === "back" ? "#f2f2ff" : "#FFFFFF"}`,
+      Frame: {
+        BorderWidth: 1,
+        BorderColor: "#f2f2ff",
+        CornerRadius: 10,
+      },
     };
   });
 
   return {
     Type: "keyboard",
+    InputFieldState: "hidden",
     Buttons: buttons,
+    BgColor: "#F7F7FF",
   };
 };
 
@@ -33,20 +34,20 @@ module.exports.sendCenters = (centers) => {
     .map((i) => {
       return [
         {
-          Columns: 6,
+          Columns: 5,
           Rows: 3,
           ActionType: "",
           ActionBody: `${i.id}`,
-          Text: `<font color=#3a3335>${i.name}</font>`,
-          TextSize: "large",
-          TextVAlign: "top",
+          Text: `<b><font color=#3A3335>${i.name}</font></b>`,
+          TextSize: "regular",
+          TextVAlign: "middle",
           TextHAlign: "center",
-          TextShouldFit: true,
           BgColor: "#FFFFFF",
           Silent: true,
+          TextShouldFit: true,
         },
         {
-          Columns: 6,
+          Columns: 5,
           Rows: 1,
           ActionType: "reply",
           ActionBody: `${i.id}`,
@@ -54,7 +55,6 @@ module.exports.sendCenters = (centers) => {
           TextSize: "small",
           TextVAlign: "middle",
           TextHAlign: "center",
-          TextShouldFit: true,
           BgColor: "#F7F7FF",
           Silent: true,
         },
@@ -63,7 +63,7 @@ module.exports.sendCenters = (centers) => {
     .flat(1);
 
   return {
-    ButtonsGroupColumns: 6,
+    ButtonsGroupColumns: 5,
     ButtonsGroupRows: 4,
     BgColor: "#FFFFFF",
     Buttons: buttons,
@@ -73,23 +73,37 @@ module.exports.sendCenters = (centers) => {
 module.exports.sendCenterDetails = (center) => {
   const messages = [];
 
-  let message = `*${center.name}*\n${
-    center.director ? "\n" + "Директор: " + center.director + "\n" : ""
-  }${center.notes ? "\n" + center.notes + "\n" : ""}`;
+  let message = `*${center.name}*\n`;
 
-  message += "\nТелефон:\n";
+  if (center.director) {
+    message += `\n _Директор: ${center.director}_\n`;
+  }
 
-  center.contacts.telephone.forEach((t) => {
-    message += `\n${t}`;
-  });
+  if (center.notes) {
+    message += `\n${center.notes}\n`;
+  }
 
-  messages.push(new TextMessage(message));
+  if (center.contacts.email) {
+    message += `\n\n${center.contacts.email}\n`;
+  }
 
-  Object.values(center.contacts).map((v) => {
-    if (!Array.isArray(v)) {
-      messages.push(new TextMessage(v));
-    }
-  });
+  if (center.contacts.website) {
+    message += `\n\n${center.contacts.website}\n`;
+  }
+
+  if (center.contacts.phoneNumber) {
+    center.contacts.phoneNumber.forEach((t) => {
+      message += `\n${t}`;
+    });
+  }
+
+  messages.push(new TextMessage(message, null, null, null, null, 6));
+
+  if (center.contacts.address) {
+    messages.push(
+      new TextMessage(center.contacts.address, null, null, null, null, 6)
+    );
+  }
 
   return messages;
 };
