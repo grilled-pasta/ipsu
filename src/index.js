@@ -103,7 +103,9 @@ app.use("/viber/webhook", bot.middleware());
 app.listen(process.env.PORT, async () => {
   try {
     console.log(`Application running on port: ${process.env.PORT}`);
-    bot.setWebhook(`${process.env.WEBHOOK_URL}/viber/webhook`);
+    bot
+      .setWebhook(`${process.env.WEBHOOK_URL}/viber/webhook`)
+      .catch((e) => console.log(e));
   } catch (error) {
     console.log(
       `Can't set webhook on ${process.env.WEBHOOK_URL}/viber/webhook`

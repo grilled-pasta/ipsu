@@ -43,7 +43,6 @@ module.exports.sendCenters = (centers) => {
           TextHAlign: "center",
           TextShouldFit: true,
           BgColor: "#FFFFFF",
-          TextShouldFit: true,
           Silent: true,
         },
         {
