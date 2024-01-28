@@ -648,7 +648,7 @@ values.set(522, {
 });
 
 values.set(53, {
-  id: 51,
+  id: 53,
   name: "Други",
   type: "answer",
 });
