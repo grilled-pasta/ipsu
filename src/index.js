@@ -41,6 +41,10 @@ const bot = new ViberBot({
   avatar: "/logo.png",
 });
 
+process.on("unhandledRejection", (error) => {
+  console.log("unhandledRejection", error.message);
+});
+
 bot.onConversationStarted((userProfile) => {
   console.log(
     `${BotEvents.CONVERSATION_STARTED}: ${JSON.stringify(userProfile)}`
@@ -101,17 +105,17 @@ bot.on(BotEvents.MESSAGE_RECEIVED, (message, response) => {
   }
 });
 
-app.use("/", router);
-app.use("/viber/webhook", bot.middleware());
-app.listen(process.env.PORT, async () => {
-  try {
+try {
+  app.use("/", router);
+  app.use("/viber/webhook", bot.middleware());
+  app.listen(process.env.PORT, async () => {
     console.log(`Application running on port: ${process.env.PORT}`);
     bot
       .setWebhook(`${process.env.VERCEL_URL}/viber/webhook`)
       .catch((e) => console.log(e));
-  } catch (error) {
-    console.log(`Can't set WEBHOOK on ${process.env.VERCEL_URL}/viber/webhook`);
-    console.error(error);
-    process.exit(1);
-  }
-});
+  });
+} catch (error) {
+  console.log(`Can't set WEBHOOK on ${process.env.VERCEL_URL}/viber/webhook`);
+  console.error(error);
+  process.exit(1);
+}
