@@ -620,7 +620,7 @@ values.set(515, {
 });
 
 values.set(52, {
-  id: 51,
+  id: 52,
   name: "Правна Помощ",
   type: "answer",
 });
