@@ -24,7 +24,7 @@ const app = express();
 
 // EXPRESS CONFIG
 const corsOptions = {
-  origin: process.env.WEBHOOK_URL,
+  origin: process.env.VERCEL_URL,
   methods: "GET,POST,DELETE",
   optionsSuccessStatus: 204,
 };
@@ -104,12 +104,10 @@ app.listen(process.env.PORT, async () => {
   try {
     console.log(`Application running on port: ${process.env.PORT}`);
     bot
-      .setWebhook(`${process.env.WEBHOOK_URL}/viber/webhook`)
+      .setWebhook(`${process.env.VERCEL_URL}/viber/webhook`)
       .catch((e) => console.log(e));
   } catch (error) {
-    console.log(
-      `Can't set webhook on ${process.env.WEBHOOK_URL}/viber/webhook`
-    );
+    console.log(`Can't set WEBHOOK on ${process.env.VERCEL_URL}/viber/webhook`);
     console.error(error);
     process.exit(1);
   }
