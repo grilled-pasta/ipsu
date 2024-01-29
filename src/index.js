@@ -6,6 +6,8 @@ const TextMessage = require("viber-bot").Message.Text;
 const KeyboardMessage = require("viber-bot").Message.Keyboard;
 const RichMediaMessage = require("viber-bot").Message.RichMedia;
 
+var cron = require("node-cron");
+
 const {
   sendKeyboardMenu,
   sendCenters,
@@ -137,6 +139,10 @@ bot.on(BotEvents.MESSAGE_RECEIVED, (message, response) => {
       ])
       .catch((e) => console.log(e));
   }
+});
+
+cron.schedule("*/15 * * * *", () => {
+  console.log("15 minutes passed...");
 });
 
 app.use("/", router);
